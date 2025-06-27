@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1 class="masthead-heading text-uppercase mb-0">
+        {{ student.firstName }} {{ student.lastName }}
+    </h1>
+    <table class="table table-hover table-striped">
+        <thead>
+        <tr>
+            <th>Voornaam</th>
+            <td>{{ student.firstName }}</td>
+        </tr>
+        <tr>
+            <th>Achternaam</th>
+            <td>{{ student.lastName }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ student.email }}</td>
+        </tr>
+        <tr>
+            <th>Leeftijd</th>
+            <td>{{ student.age }}</td>
+        </tr>
+
+        </tr>
+        </thead>
+    </table>
+{% endblock %}

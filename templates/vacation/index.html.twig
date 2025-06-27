@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1 class="masthead-heading text-uppercase mb-0">
+        Vakantie overzicht
+    </h1>
+    <table class="table table-hover table-striped">
+        <thead>
+        <tr>
+            <th>Vakantie</th>
+            <th>Van datum</th>
+            <th>Tot datum</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for vacation in vacations %}
+            <tr>
+                <td>{{ vacation.name }}</td>
+                <td>{{ vacation.startDate|date('d-M-Y') }}</td>
+                <td>{{ vacation.endDate|date('d-M-Y') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1 class="masthead-heading text-uppercase mb-0">
+        Studenten overzicht
+    </h1>
+    <table class="table table-hover table-striped">
+        <thead>
+        <tr>
+            <th>Voornaam</th>
+            <th>Achternaam</th>
+            <th>Email</th>
+            <th>Leeftijd</th>
+            <th>Klas</th>
+            <th>Acties</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for student in students %}
+            <tr>
+                <td>{{ student.firstName }}</td>
+                <td>{{ student.lastName }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.age }}</td>
+                <td>{{ student.schoolGroup.name }}</td>
+                <td><a class="btn btn-outline-secondary" href="{{ path('app_show_student', {'id': student.id }) }}" role="button">Toon Student</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

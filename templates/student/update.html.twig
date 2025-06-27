@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1 class="masthead-heading text-uppercase mb-0">
+        Update Student
+    </h1>
+    {{form_start(form) }}
+    <div class="row d-flex justify-content-center">
+        <div class="col-8">
+            {{ form_row(form.firstName) }}
+        </div>
+        <div class="col-8">
+            {{ form_row(form.email) }}
+        </div>
+        <div class="col-8">
+            {{ form_row(form.lastName) }}
+        </div>
+        <div class="col-8">
+            {{ form_row(form.age) }}
+        </div>
+        <div class="col-8">
+            {{ form_row(form.schoolGroup) }}
+        </div>
+        <div class="col-8">
+            {{ form_row(form.submit) }}
+        </div>
+    </div>
+    {{form_end(form) }}
+{% endblock %}
