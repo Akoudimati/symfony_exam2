@@ -2,9 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\Product;
+use App\Entity\Books;
 use App\Entity\Purchase;
 use App\Entity\PurchaseItem;
+use App\Form\CheckoutType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,13 +25,13 @@ class CartController extends AbstractController
         $total = 0;
 
         foreach ($cart as $id => $quantity) {
-            $product = $entityManager->getRepository(Product::class)->find($id);
-            if ($product) {
+            $book = $entityManager->getRepository(Books::class)->find($id);
+            if ($book) {
                 $cartWithData[] = [
-                    'product' => $product,
+                    'book' => $book,
                     'quantity' => $quantity
                 ];
-                $total += $product->getPrice() * $quantity;
+                $total += $book->getPrice() * $quantity;//+dady
             }
         }
 
@@ -43,7 +44,6 @@ class CartController extends AbstractController
     #[Route('/add/{id}', name: 'cart_add')]
     public function add($id, Request $request, SessionInterface $session, EntityManagerInterface $entityManager): Response
     {
-        // Require login
         if (!$this->getUser()) {
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse([
@@ -55,43 +55,35 @@ class CartController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        // Check if product exists
-        $product = $entityManager->getRepository(Product::class)->find($id);
-        if (!$product) {
+        $book = $entityManager->getRepository(Books::class)->find($id);
+        if (!$book) {
             if ($request->isXmlHttpRequest()) {
                 return new JsonResponse([
                     'success' => false,
-                    'message' => 'Product not found'
+                    'message' => 'Book not found'
                 ], 404);
             }
-            $this->addFlash('error', 'Product not found');
             return $this->redirectToRoute('app_cart');
         }
 
-        // Get cart from session
         $cart = $session->get('cart', []);
 
-        // Add or increment product
         if (!empty($cart[$id])) {
             $cart[$id]++;
         } else {
             $cart[$id] = 1;
         }
 
-        // Save cart back to session
         $session->set('cart', $cart);
 
-        // Return appropriate response based on request type
         if ($request->isXmlHttpRequest()) {
             return new JsonResponse([
                 'success' => true,
-                'message' => 'Item added to cart successfully',
+                'message' => 'Book added to cart',
                 'cartCount' => array_sum($cart)
             ]);
         }
 
-        // Regular request - redirect to cart
-        $this->addFlash('success', 'Item added to cart');
         return $this->redirectToRoute('app_cart');
     }
 
@@ -110,7 +102,7 @@ class CartController extends AbstractController
             return new JsonResponse([
                 'success' => true,
                 'cartCount' => count($cart),
-                'message' => 'Item removed from cart successfully'
+                'message' => 'Book removed from cart'
             ]);
         }
 
@@ -123,7 +115,7 @@ class CartController extends AbstractController
         $cart = $session->get('cart', []);
 
         if (isset($cart[$id])) {
-            $cart[$id] = max(1, intval($quantity)); // Ensure quantity is at least 1
+            $cart[$id] = max(1, intval($quantity));
         }
 
         $session->set('cart', $cart);
@@ -131,45 +123,67 @@ class CartController extends AbstractController
         return new JsonResponse([
             'success' => true,
             'cartCount' => count($cart),
-            'message' => 'Cart updated successfully'
+            'message' => 'Cart updated'
         ]);
     }
 
     #[Route('/checkout', name: 'cart_checkout')]
-    public function checkout(SessionInterface $session, EntityManagerInterface $entityManager): Response
+    public function checkout(Request $request, SessionInterface $session, EntityManagerInterface $entityManager): Response
     {
         $cart = $session->get('cart', []);
 
         if (empty($cart)) {
-            $this->addFlash('error', 'Your cart is empty');
             return $this->redirectToRoute('app_cart');
         }
 
         $purchase = new Purchase();
         $purchase->setUser($this->getUser());
+        
         $total = 0;
+        $cartWithData = [];
 
-        foreach ($cart as $productId => $quantity) {
-            $product = $entityManager->getRepository(Product::class)->find($productId);
-            if ($product) {
-                $purchaseItem = new PurchaseItem();
-                $purchaseItem->setProduct($product);
-                $purchaseItem->setQuantity($quantity);
-                $purchaseItem->setPrice($product->getPrice());
-                $purchase->addItem($purchaseItem);
-                $total += $product->getPrice() * $quantity;
+        foreach ($cart as $bookId => $quantity) {
+            $book = $entityManager->getRepository(Books::class)->find($bookId);
+            if ($book) {
+                $cartWithData[] = [
+                    'book' => $book,
+                    'quantity' => $quantity
+                ];
+                $total += $book->getPrice() * $quantity;
             }
         }
 
-        $purchase->setTotalAmount((string)$total);
+        $form = $this->createForm(CheckoutType::class, $purchase);
+        $form->handleRequest($request);
 
-        $entityManager->persist($purchase);
-        $entityManager->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
+            foreach ($cart as $bookId => $quantity) {
+                $book = $entityManager->getRepository(Books::class)->find($bookId);
+                if ($book) {
+                    $purchaseItem = new PurchaseItem();
+                    $purchaseItem->setBooks($book);
+                    $purchaseItem->setQuantity($quantity);
+                    $purchaseItem->setPrice($book->getPrice());
+                    $purchase->addItem($purchaseItem);
+                }
+            }
 
-        // Clear the cart
-        $session->remove('cart');
+            $purchase->setTotalAmount((string)$total);
 
-        $this->addFlash('success', 'Your order has been placed successfully!');
-        return $this->redirectToRoute('app_cart');
+            $entityManager->persist($purchase);
+            $entityManager->flush();
+
+            $session->remove('cart');
+
+            return $this->render('cart/success.html.twig', [
+                'purchase' => $purchase
+            ]);
+        }
+
+        return $this->render('cart/checkout.html.twig', [
+            'form' => $form->createView(),
+            'items' => $cartWithData,
+            'total' => $total
+        ]);
     }
 } 

@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Checkout</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <h3>Your Information</h3>
+            {{ form_start(form) }}
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form_row(form.firstName, {'attr': {'class': 'form-control mb-3'}}) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.lastName, {'attr': {'class': 'form-control mb-3'}}) }}
+                    </div>
+                </div>
+                
+                {{ form_row(form.email, {'attr': {'class': 'form-control mb-3'}}) }}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form_row(form.phoneNumber, {'attr': {'class': 'form-control mb-3'}}) }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form_row(form.postalCode, {'attr': {'class': 'form-control mb-3'}}) }}
+                    </div>
+                </div>
+
+                {{ form_row(form.submit, {'attr': {'class': 'btn btn-success btn-lg'}}) }}
+            {{ form_end(form) }}
+        </div>
+
+        <div class="col-md-4">
+            <h3>Order Summary</h3>
+            <div class="card">
+                <div class="card-body">
+                    {% for item in items %}
+                        <div class="d-flex justify-content-between">
+                            <span>{{ item.book.name }} x{{ item.quantity }}</span>
+                            <span>${{ (item.book.price * item.quantity)|number_format(2) }}</span>
+                        </div>
+                    {% endfor %}
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <strong>Total: ${{ total|number_format(2) }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

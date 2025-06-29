@@ -1,90 +1,64 @@
-
 {% extends 'base.html.twig' %}
-{% block title %}Hello BooksController!{% endblock %}
+{% block title %}Books{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
-
-
-
-
-
-
-
-
-<table class="table table-hover table-striped">
-    <thead>
-<div class="example-wrapper">
-    {% for books in books %}
-    <tr>
-        <td>{{ books.name }}</td>
-
-        <td> $ {{ books.price }}</td>
-    </tr>
-
-
-    {% endfor %}
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Available Books</h1>
+    
+    <table class="table table-hover table-striped">
+        <thead>
+            <tr>
+                <th>Book Name</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book.name }}</td>
+                <td>${{ book.price }}</td>
+                <td>
+                    <a href="{{ path('cart_add', {'id': book.id}) }}" class="btn btn-primary add-to-cart-btn">
+                        Add to Cart
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
-    </thead>
-</table>
-
-    <div class="particles-bg">
-
-        <a href="" class="btn btn-primary add-to-cart add-to-cart-btn">
-            Voeg aan cart
-        </a>
-    </div>
-
-
 {% endblock %}
 
-
-
-
-
- {% block javascripts %}
-        {{ parent() }}
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                console.log('DOM Content Loaded - Setting up event listeners');
-
-                document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-                    console.log('Found add to cart button:', button);
-
-                    button.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const url = this.getAttribute('href');
-                        console.log('Add to cart clicked, URL:', url);
-
-                        fetch(url, {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                            .then(response => {
-                                console.log('Response received:', response);
-                                return response.json();
-                            })
-                            .then(data => {
-                                console.log('Data received:', data);
-                                if (data.loginRequired && data.loginUrl) {
-                                    window.location.href = data.loginUrl;
-                                    return;
-                                }
-                                if (data.success) {
-                                    console.log('Showing toast notification');
-                                    showCartAddedToast();
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('Error adding item to cart. Please try again.');
-                            });
-                    });
-                });
+{% block javascripts %}
+{{ parent() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.getAttribute('href');
+            
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.loginRequired && data.loginUrl) {
+                    window.location.href = data.loginUrl;
+                    return;
+                }
+                if (data.success) {
+                    alert('Book added to cart!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
-        </script>
-    {% endblock %}
+        });
+    });
+});
+</script>
+{% endblock %}

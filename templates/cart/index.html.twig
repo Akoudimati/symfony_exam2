@@ -4,26 +4,22 @@
 
 {% block body %}
     <div class="container mt-4">
-        <h1 class="text-center mb-4" style="color: white;">Shopping Cart</h1>
+        <h1 class="text-center mb-4">Shopping Cart</h1>
 
         {% for message in app.flashes('success') %}
-            <div class="alert alert-success">
-                {{ message }}
-            </div>
+            <div class="alert alert-success">{{ message }}</div>
         {% endfor %}
 
         {% for message in app.flashes('error') %}
-            <div class="alert alert-danger">
-                {{ message }}
-            </div>
+            <div class="alert alert-danger">{{ message }}</div>
         {% endfor %}
 
         {% if items|length > 0 %}
             <div class="table-responsive">
-                <table class="table table-dark table-hover">
+                <table class="table table-hover">
                     <thead>
                     <tr>
-                        <th>Product</th>
+                        <th>Book</th>
                         <th>Price</th>
                         <th>Quantity</th>
                         <th>Total</th>
@@ -33,17 +29,15 @@
                     <tbody>
                     {% for item in items %}
                         <tr>
-                            <td>{{ item.product.name }}</td>
-                            <td>${{ item.product.price }}</td>
+                            <td>{{ item.book.name }}</td>
+                            <td>${{ item.book.price }}</td>
                             <td>
-                                <input type="number" min="1" value="{{ item.quantity }}" class="form-control form-control-sm quantity-input" data-product-id="{{ item.product.id }}" style="width: 70px; display: inline-block;">
-                                <button class="btn btn-primary btn-sm update-qty-btn" data-product-id="{{ item.product.id }}">Update</button>
+                                <input type="number" min="1" value="{{ item.quantity }}" class="form-control quantity-input" data-book-id="{{ item.book.id }}" style="width: 70px; display: inline-block;">
+                                <button class="btn btn-primary btn-sm update-qty-btn" data-book-id="{{ item.book.id }}">Update</button>
                             </td>
-                            <td>${{ (item.product.price * item.quantity)|number_format(2) }}</td>
+                            <td>${{ (item.book.price * item.quantity)|number_format(2) }}</td>
                             <td>
-                                <a href="{{ path('cart_remove', {'id': item.product.id}) }}" class="btn btn-danger btn-sm">
-                                    Remove
-                                </a>
+                                <a href="{{ path('cart_remove', {'id': item.book.id}) }}" class="btn btn-danger btn-sm">Remove</a>
                             </td>
                         </tr>
                     {% endfor %}
@@ -58,13 +52,11 @@
             </div>
 
             <div class="text-center mt-4">
-                <a href="{{ path('cart_checkout') }}" class="btn btn-success btn-lg">
-                    Proceed to Checkout
-                </a>
+                <a href="{{ path('cart_checkout') }}" class="btn btn-success btn-lg">Checkout</a>
             </div>
         {% else %}
             <div class="alert alert-info text-center">
-                Your cart is empty. <a href="{{ path('app_home') }}" class="alert-link">Continue shopping</a>
+                Your cart is empty. <a href="{{ path('app_books') }}" class="alert-link">Browse Books</a>
             </div>
         {% endif %}
     </div>
@@ -77,26 +69,25 @@
             document.querySelectorAll('.update-qty-btn').forEach(function(btn) {
                 btn.addEventListener('click', function(e) {
                     e.preventDefault();
-                    const productId = this.getAttribute('data-product-id');
-                    const input = document.querySelector('.quantity-input[data-product-id="' + productId + '"]');
+                    const bookId = this.getAttribute('data-book-id');
+                    const input = document.querySelector('.quantity-input[data-book-id="' + bookId + '"]');
                     const newQty = input.value;
-                    const url = '/cart/update/' + productId + '/' + newQty;
+                    const url = '/cart/update/' + bookId + '/' + newQty;
+                    
                     fetch(url, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                location.reload();
-                            } else {
-                                alert('Could not update quantity.');
-                            }
-                        })
-                        .catch(error => {
-                            alert('Error updating quantity.');
-                        });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
                 });
             });
         });

@@ -33,12 +33,12 @@ class PurchaseItem
         return $this->id;
     }
 
-    public function getname(): ?books
+    public function getBooks(): ?books
     {
         return $this->books;
     }
 
-    public function setProduct(?books $books): static
+    public function setBooks(?books $books): static
     {
         $this->books = $books;
         return $this;
@@ -55,12 +55,12 @@ class PurchaseItem
         return $this;
     }
 
-    public function getprice(): ?string
+    public function getPrice(): ?string
     {
         return $this->price;
     }
 
-    public function setprice(string $price): static
+    public function setPrice(string $price): static
     {
         $this->price = $price;
         return $this;

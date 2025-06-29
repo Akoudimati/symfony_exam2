@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Purchase Complete{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="text-center">
+        <h1 class="text-success mb-4">Purchase Complete!</h1>
+        <p class="lead">Thank you for your order, {{ purchase.firstName }} {{ purchase.lastName }}!</p>
+        
+        <div class="card mx-auto" style="max-width: 600px;">
+            <div class="card-header">
+                <h4>Order Details</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Order Date:</strong> {{ purchase.purchaseDate|date('Y-m-d H:i') }}</p>
+                <p><strong>Customer:</strong> {{ purchase.firstName }} {{ purchase.lastName }}</p>
+                <p><strong>Email:</strong> {{ purchase.email }}</p>
+                <p><strong>Phone:</strong> {{ purchase.phoneNumber }}</p>
+                <p><strong>Postal Code:</strong> {{ purchase.postalCode }}</p>
+                <hr>
+                <h5>Items Purchased:</h5>
+                {% for item in purchase.items %}
+                    <div class="d-flex justify-content-between">
+                        <span>{{ item.books.name }} x{{ item.quantity }}</span>
+                        <span>${{ (item.price * item.quantity)|number_format(2) }}</span>
+                    </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Total: ${{ purchase.totalAmount|number_format(2) }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="{{ path('app_books') }}" class="btn btn-primary">Continue Shopping</a>
+        </div>
+    </div>
+</div>
+{% endblock %} 
